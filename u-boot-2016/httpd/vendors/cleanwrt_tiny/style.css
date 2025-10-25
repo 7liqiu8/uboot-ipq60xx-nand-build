@@ -42,6 +42,12 @@ h1 {
 	text-align: justify;
 }
 
+.i-404 {
+	margin: 20px;
+	border-radius: 7px;
+	text-align: center;
+}
+
 .w {
 	background: #FEFDCE;
 	border: solid 1px #FFC643;
