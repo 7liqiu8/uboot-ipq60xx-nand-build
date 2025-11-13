@@ -4,16 +4,20 @@ u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 
 ## 适配设备
 
-此 U-Boot 适配以下 IPQ60xx eMMC 机型：
+本项目已适配以下 IPQ60xx eMMC 机型：
 
 - 京东云太乙（RE-CS-07）
 - 京东云亚瑟（RE-SS-01）
 - 京东云雅典娜（RE-CS-02）
+- 连我 NN6000 V1
+- 连我 NN6000 V2
 - 红米 AX5 JDCloud（RA50）
 
-## 编译步骤
+## 编译方法
 
 ### 本地编译
+
+1. 配置编译环境
 
 ```bash
 # 编译环境：Ubuntu
@@ -21,9 +25,30 @@ u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 sudo apt update
 sudo apt install -y python3
 sudo apt install -y build-essential device-tree-compiler
+```
+
+2. 克隆此仓库
+
+```bash
 git clone https://github.com/chenxin527/uboot-ipq60xx-emmc-build.git
-cd uboot-ipq60xx-emmc-build
-./build.sh
+```
+
+3. 查看编译指令
+
+```
+用法: ./build.sh [选项]
+
+选项:
+  help                   显示此帮助信息
+  setup_env              仅设置编译环境
+  clean_cache            清理编译过程中产生的缓存
+  build_re-cs-02         编译 JDCloud AX6600 (Athena)
+  build_re-cs-07         编译 JDCloud ER1
+  build_re-ss-01         编译 JDCloud AX1800 Pro (Arthur)
+  build_nn6000-v1        编译 Link NN6000 V1
+  build_nn6000-v2        编译 Link NN6000 V2
+  build_ax5-jdcloud      编译 Redmi AX5 JDCloud
+  build_all              编译所有支持的板卡
 ```
 
 ### 云编译
@@ -32,9 +57,7 @@ Fork 本仓库后使用 GitHub Actions 云编译。
 
 ## 文件说明
 
-编译生成的 U-Boot 文件：./uboot-ipq60xx-emmc.bin
-
-因为 U-Boot 文件大小超过了 640KB，而京东云太乙、京东云亚瑟、京东云雅典娜、红米 AX5 JDCloud 等 IPQ60xx eMMC 机型的 0:APPSBL 分区大小只有 640KB，所以若要刷写此 U-Boot，请先扩容 0:APPSBL 分区。[点击此处](http://example.com) 获取分区教程及相关文件。
+编译生成的 U-Boot 文件：./uboot-ipq60xx-emmc-\${设备型号}-\${版本号}.bin
 
 U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图）：
 
@@ -45,10 +68,10 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 | 功能        | 网址                            | 备注                                |
 | :---------- | :----------------------------- | :--------------------------------- |
 | 更新固件     | http://192.168.1.1             | 支持内核大小为 6MB 和 12MB 的固件更新 |
-| 更新 ART    | http://192.168.1.1/art.html    | 包含路由器网卡 MAC 地址及无线校准数据 |
+| 更新 ART    | http://192.168.1.1/art.html    | ART 包含路由器网卡 MAC 及无线校准数据 |
 | 更新 CDT    | http://192.168.1.1/cdt.html    | CDT 文件不得小于 10KB（10240 Bytes） |
-| 更新 IMG    | http://192.168.1.1/img.html    | 可更新 GPT 分区表或者 EMMC IMG 镜像 |
-| 更新 U-Boot | http://192.168.1.1/uboot.html  | 最大支持 1024KB（1048576 Bytes）的 U-Boot |
+| 更新 IMG    | http://192.168.1.1/img.html    | 可更新 GPT 分区表或者 eMMC IMG 镜像 |
+| 更新 U-Boot | http://192.168.1.1/uboot.html  | U-Boot 大小不能超过 640KB（655360 Bytes）|
 | 启动 uImage | http://192.168.1.1/uimage.html | Initramfs uImage，可直接上传至内存并启动 |
 
 > [!NOTE]
