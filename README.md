@@ -9,7 +9,7 @@ u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 - 京东云太乙（RE-CS-07）
 - 京东云亚瑟（RE-SS-01）
 - 京东云雅典娜（RE-CS-02）
-- 连我 NN6000 V1
+- 连我 NN6000 V1（未测试）
 - 连我 NN6000 V2
 - 红米 AX5 JDCloud（RA50）
 
@@ -58,14 +58,15 @@ Fork 本仓库后使用 GitHub Actions 云编译。
 
 ## 文件说明
 
-编译生成的 U-Boot 文件：./uboot-ipq60xx-emmc-\${设备型号}-\${版本号}.bin
+编译生成的 U-Boot 文件：uboot-ipq60xx-emmc-\${设备型号}-\${版本号}.bin
 
 U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图）：
 
 ![uboot-index-page](./screenshots/uboot-index-page.png)
 
-## 网址说明
+## 功能介绍
 
+### 网址说明
 | 功能        | 网址                            | 备注                                |
 | :---------- | :----------------------------- | :--------------------------------- |
 | 更新固件     | http://192.168.1.1             | 支持内核大小为 6MB 和 12MB 的固件更新 |
@@ -86,3 +87,22 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 > [点击此处](http://example.com) 获取 USB 9008 救砖教程及相关文件。
 >
 > [点击此处](http://example.com) 获取经测试可正常使用的 uImage。
+
+### 进 Web 刷机界面
+
+所有机型都支持通过 RESET 键进入 U-Boot Web 刷机界面。
+
+以下有 WPS 键的机型还支持通过 WPS 键进入 U-Boot Web 刷机界面：
+
+- 京东云亚瑟（原厂叫 JOY 键）
+- 京东云雅典娜（原厂叫 JOY 键）
+- 连我 NN6000 V1（原厂叫 Reboot 键）
+- 连我 NN6000 V2（原厂叫 Reboot 键）
+
+此外，京东云雅典娜还支持通过 SCREEN 键进入 U-Boot Web 刷机界面。
+
+### 其他
+
+U-Boot 下不区分 LAN / WAN，任意网口均可进入 Web 刷机界面。
+
+按住 RESET / WPS / SCREEN 键后上电，等待 LED 闪烁 5 次后即可进入 U-Boot Web 刷机界面。
