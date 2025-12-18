@@ -104,11 +104,6 @@ void check_button_is_press(void)
         button_name = "WPS";
     }
 #endif
-#ifdef HAS_SCREEN_KEY
-	else if (button_is_press("screen_key", GL_SCREEN_BUTTON_IS_PRESS)) {
-        button_name = "SCREEN";
-    }
-#endif
 
 	// 如果任一按键被按下
 	while (button_name != NULL) {
@@ -121,11 +116,6 @@ void check_button_is_press(void)
 #ifdef HAS_WPS_KEY
 		else if (strcmp(button_name, "WPS") == 0) {
             still_pressed = button_is_press("wps_key", GL_WPS_BUTTON_IS_PRESS);
-        }
-#endif
-#ifdef HAS_SCREEN_KEY
-		else if (strcmp(button_name, "SCREEN") == 0) {
-            still_pressed = button_is_press("screen_key", GL_SCREEN_BUTTON_IS_PRESS);
         }
 #endif
 
@@ -271,27 +261,24 @@ int check_config()
 
 // 只检查文件的开头几个特殊 Magic Num
 int check_fw_type(void *address) {
-	u32 *sign_flas      = (u32 *)(address + 0x5c);
-	u16 *sign_55aa      = (u16 *)(address + 0x1fe);
-	u32 *sign_doodfeed  = (u32 *)(address);
-	u32 *sign_ubi       = (u32 *)(address);
-	u32 *sign_cdt       = (u32 *)(address);
-	u32 *sign_elf       = (u32 *)(address);
-	u32 *sign_kernel6m  = (u32 *)(address + 0x600000);
-	u32 *sign_kernel12m = (u32 *)(address + 0xc00000);
+	u32 *sign_flas          = (u32 *)(address + 0x5c);
+	u32 *sign_doodfeed      = (u32 *)(address);
+	u32 *sign_ubi           = (u32 *)(address);
+	u32 *sign_cdt           = (u32 *)(address);
+	u32 *sign_elf           = (u32 *)(address);
+	u64 *sign_mibib         = (u64 *)(address);
+	u64 *sign_sbl1_nand     = (u64 *)(address);
 
 	if (*sign_flas == 0x73616c46)
 		return FW_TYPE_QSDK;
 	else if (*sign_ubi == 0x23494255)
 		return FW_TYPE_UBI;
-	else if (*sign_doodfeed == 0xedfe0dd0 && *sign_kernel6m == 0x73717368)
-		return FW_TYPE_FACTORY_KERNEL6M;
-	else if (*sign_doodfeed == 0xedfe0dd0 && *sign_kernel12m == 0x73717368)
-		return FW_TYPE_FACTORY_KERNEL12M;
 	else if (*sign_doodfeed == 0xedfe0dd0)
 		return FW_TYPE_FIT;
-	else if (*sign_55aa == 0xaa55)
-		return FW_TYPE_EMMC;
+	else if (*sign_sbl1_nand == 0x73d71034844bdcd1)
+		return FW_TYPE_NAND;
+	else if (*sign_mibib == 0xcd7f127afe569fac)
+		return FW_TYPE_MIBIB;
 	else if (*sign_cdt == 0x00544443)
 		return FW_TYPE_CDT;
 	else if (*sign_elf == 0x464c457f)
@@ -303,11 +290,8 @@ int check_fw_type(void *address) {
 void print_fw_type(int fw_type) {
 	printf("* The upload file type: ");
 	switch (fw_type) {
-		case FW_TYPE_NOR:
-			printf("SPI-NOR IMGAGE *");
-			break;
-		case FW_TYPE_EMMC:
-			printf("EMMC IMAGE *");
+		case FW_TYPE_NAND:
+			printf("NAND IMAGE *");
 			break;
 		case FW_TYPE_QSDK:
 			printf("QSDK FIRMWARE *");
@@ -321,11 +305,8 @@ void print_fw_type(int fw_type) {
 		case FW_TYPE_ELF:
 			printf("ELF *");
 			break;
-		case FW_TYPE_FACTORY_KERNEL6M:
-			printf("FACTORY FIRMWARE (KERNEL SIZE: 6MB) *");
-			break;
-		case FW_TYPE_FACTORY_KERNEL12M:
-			printf("FACTORY FIRMWARE (KERNEL SIZE: 12MB) *");
+		case FW_TYPE_MIBIB:
+			printf("MIBIB *");
 			break;
 		case FW_TYPE_FIT:
 			printf("FIT IMAGE *");
