@@ -96,7 +96,7 @@ check_and_pad_file() {
     fi
 
     local current_size_bytes=$(stat -c%s "$file_path")
-    local target_size_bytes=655360  # 640KB = 655360 Bytes
+    local target_size_bytes=1572864  # 1536 KB = 1572864 Bytes
 
     log_message "文件检查: $target_name"
     log_message "文    件: $(basename "$file_path")"
@@ -227,7 +227,7 @@ compile_target_after_cache_clean() {
         mkdir -p "${SCRIPT_DIR}/bin/${COMPILE_DATE}"
     fi
 
-	local output_file="${SCRIPT_DIR}/bin/${COMPILE_DATE}/uboot-ipq60xx-emmc-${target_name}-${uboot_version}.bin"
+	local output_file="${SCRIPT_DIR}/bin/${COMPILE_DATE}/uboot-ipq60xx-nand-${target_name}-${uboot_version}.bin"
     log_message "移动 u-boot.mbn 到 bin/${COMPILE_DATE}/ 并重命名"
     mv ./u-boot.mbn "$output_file"
 
@@ -258,12 +258,7 @@ compile_all_targets() {
     log_message "编译所有支持的设备"
 
     # 依次编译所有设备
-    compile_target_after_cache_clean "jdcloud_re-cs-02"  "ipq6018_jdcloud_re_cs_02"
-    compile_target_after_cache_clean "jdcloud_re-cs-07"  "ipq6018_jdcloud_re_cs_07"
-    compile_target_after_cache_clean "jdcloud_re-ss-01"  "ipq6018_jdcloud_re_ss_01"
-    compile_target_after_cache_clean "link_nn6000-v1"    "ipq6018_link_nn6000_v1"
-    compile_target_after_cache_clean "link_nn6000-v2"    "ipq6018_link_nn6000_v2"
-    compile_target_after_cache_clean "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
+    compile_target_after_cache_clean "qihoo_360v6"  "ipq6018_qihoo_360v6"
 
     log_message "所有设备编译完成!"
 }
@@ -277,12 +272,7 @@ show_help() {
     echo "  setup_env               仅设置编译环境"
 	echo "  check_file_size <文件>  检查并调整文件大小至 640KB (655360 Bytes)"
     echo "  clean_cache             清理编译过程中产生的缓存"
-    echo "  build_re-cs-02          编译 JDCloud AX6600 (Athena)"
-    echo "  build_re-cs-07          编译 JDCloud ER1"
-    echo "  build_re-ss-01          编译 JDCloud AX1800 Pro (Arthur)"
-    echo "  build_nn6000-v1         编译 Link NN6000 V1"
-    echo "  build_nn6000-v2         编译 Link NN6000 V2"
-    echo "  build_ax5-jdcloud       编译 Redmi AX5 JDCloud"
+    echo "  build_360v6             编译 Qihoo 360V6"
     echo "  build_all               编译所有支持的设备"
 }
 
@@ -304,28 +294,8 @@ case "$1" in
         echo "编译缓存清理完成!"
         ;;
 
-    "build_re-cs-02")
-        compile_single_target "jdcloud_re-cs-02" "ipq6018_jdcloud_re_cs_02"
-        ;;
-
-    "build_re-cs-07")
-        compile_single_target "jdcloud_re-cs-07" "ipq6018_jdcloud_re_cs_07"
-        ;;
-
-    "build_re-ss-01")
-        compile_single_target "jdcloud_re-ss-01" "ipq6018_jdcloud_re_ss_01"
-        ;;
-
-    "build_nn6000-v1")
-        compile_single_target "link_nn6000-v1" "ipq6018_link_nn6000_v1"
-        ;;
-
-    "build_nn6000-v2")
-        compile_single_target "link_nn6000-v2" "ipq6018_link_nn6000_v2"
-        ;;
-
-    "build_ax5-jdcloud")
-        compile_single_target "redmi_ax5-jdcloud" "ipq6018_redmi_ax5_jdcloud"
+    "build_360v6")
+        compile_single_target "qihoo_360v6" "ipq6018_qihoo_360v6"
         ;;
 
     "build_all")
@@ -345,7 +315,7 @@ esac
 
 # 记录编译操作的结束
 case "$1" in
-    "build_re-cs-02"|"build_re-cs-07"|"build_re-ss-01"|"build_nn6000-v1"|"build_nn6000-v2"|"build_ax5-jdcloud"|"build_all")
+    "build_360v6"|"build_all")
         if [ -n "$LOG_FILE" ]; then
             echo "==========================================" >> "$LOG_FILE"
             echo "编译结束时间: $(TZ=UTC-8 date '+%Y-%m-%d %H:%M:%S')" >> "$LOG_FILE"

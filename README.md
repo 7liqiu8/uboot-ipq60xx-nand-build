@@ -2,18 +2,19 @@
 
 u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 
+**eMMC** 机型 U-Boot 仓库：https://github.com/chenxin527/uboot-ipq60xx-emmc-build
+
 **NOR** 机型 U-Boot 仓库：https://github.com/chenxin527/uboot-ipq60xx-nor-build
 
 ## 适配设备
 
-本项目已适配以下 IPQ60xx **eMMC** 机型：
+本项目已适配以下 IPQ60xx **NAND** 机型：
 
-- 京东云太乙（RE-CS-07）
-- 京东云亚瑟（RE-SS-01）
-- 京东云雅典娜（RE-CS-02）
-- 连我 NN6000 V1
-- 连我 NN6000 V2
-- 红米 AX5 JDCloud（RA50）
+- Qihoo 360V6
+
+> [!NOTE]
+>
+> NAND 机型的 U-Boot 均填充到了 1536 KB（0:APPSBL 分区大小）。初次刷入此 U-Boot 时建议在 SSH 下或者 TTL 下更新。其他作者的 U-Boot 可能限制了 192.168.1.1/uboot.html 界面下上传的 U-Boot 大小，无法直接更新此 U-Boot，若要在其他作者 U-Boot 的 192.168.1.1/uboot.html 界面下刷写此 U-Boot，请用十六进制编辑器删掉此 U-Boot 末尾多余的 0x0 后再尝试刷写。
 
 ## 编译方法
 
@@ -37,7 +38,7 @@ git clone https://github.com/chenxin527/uboot-ipq60xx-emmc-build.git
 
 3. 编译你需要的设备
 
-```
+```bash
 用法: ./build.sh [选项]
 
 选项:
@@ -45,12 +46,7 @@ git clone https://github.com/chenxin527/uboot-ipq60xx-emmc-build.git
   setup_env               仅设置编译环境
   check_file_size <文件>  检查并调整文件大小至 640KB (655360 Bytes)
   clean_cache             清理编译过程中产生的缓存
-  build_re-cs-02          编译 JDCloud AX6600 (Athena)
-  build_re-cs-07          编译 JDCloud ER1
-  build_re-ss-01          编译 JDCloud AX1800 Pro (Arthur)
-  build_nn6000-v1         编译 Link NN6000 V1
-  build_nn6000-v2         编译 Link NN6000 V2
-  build_ax5-jdcloud       编译 Redmi AX5 JDCloud
+  build_360v6             编译 Qihoo 360V6
   build_all               编译所有支持的设备
 ```
 
@@ -75,11 +71,11 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 ### 网址说明
 | 功能        | 网址                            | 备注                                |
 | :---------- | :----------------------------- | :--------------------------------- |
-| 更新固件     | http://192.168.1.1             | 支持内核大小为 6MB 和 12MB 的固件更新 |
-| 更新 ART    | http://192.168.1.1/art.html    | ART 包含路由器网卡 MAC 及无线校准数据 |
+| 更新固件     | http://192.168.1.1             | 支持 UBI 固件                      |
+| 更新 ART    | http://192.168.1.1/art.html    | ART 包含路由器网卡 MAC 及无线校准数据（360V6 的 MAC 在 factory 分区）|
 | 更新 CDT    | http://192.168.1.1/cdt.html    | CDT 文件不得小于 10KB（10240 Bytes） |
-| 更新 IMG    | http://192.168.1.1/img.html    | 可更新 GPT 分区表或者 eMMC IMG 镜像 |
-| 更新 U-Boot | http://192.168.1.1/uboot.html  | U-Boot 大小不能超过 640KB（655360 Bytes）|
+| 更新 IMG    | http://192.168.1.1/img.html    | 可更新 NAND 的 MIBIB 分区表或镜像 |
+| 更新 U-Boot | http://192.168.1.1/uboot.html  | U-Boot 大小不能超过 1536 KB（1572864 Bytes）|
 | 启动 uImage | http://192.168.1.1/uimage.html | Initramfs uImage，可直接上传至内存并启动 |
 
 > [!NOTE]
@@ -100,26 +96,19 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 
 以下有 WPS 键的机型还支持通过 WPS 键进入 U-Boot Web 刷机界面：
 
-- 京东云亚瑟（原厂叫 JOY 键）
-- 京东云雅典娜（原厂叫 JOY 键）
-- 连我 NN6000 V1（原厂叫 Reboot 键）
-- 连我 NN6000 V2（原厂叫 Reboot 键）
-
-此外，京东云雅典娜还支持通过 SCREEN 键进入 U-Boot Web 刷机界面。
+- Qihoo 360V6
 
 ### 其他
 
 U-Boot 下不区分 LAN / WAN，任意网口均可进入 Web 刷机界面。
 
-按住 RESET / WPS / SCREEN 键后上电，等待 LED 闪烁 5 次后即可进入 U-Boot Web 刷机界面。
+按住 RESET / WPS 键后上电，等待 LED 闪烁 5 次后即可进入 U-Boot Web 刷机界面。
+
+> [!NOTE]
+>
+> 360V6 靠近 USB 的第二个网口（紧挨着 WAN 的 LAN 口）无法进入 U-Boot Web 界面，请使用其他网口。
 
 ## 注意事项
-
-### 连我 NN6000 V1 的 U-Boot 未测试
-
-连我 NN6000 V1 的 U-Boot 未测试过，因为没有机器。
-
-V1 和 V2 的 U-Boot 只是网口配置不同，其他都一样。若发现 V1 U-Boot 不能正常使用，可刷写 V2 的 U-Boot 测试，看看每个网口是否能正常进 Web。每换一个网口都要断电并重新按 RESET / WPS 键启动 HTTP Server，不要在 HTTP Server 已经启动的时候换网口，这样是进不了 Web 的。
 
 ### bootipq 失败后执行 httpd 出错
 
@@ -151,4 +140,4 @@ Resetting CPU ...
 
 若遇到 bootipq 失败的情况，请断电重启路由器以重置运行环境，在 bootipq 执行前按 RESET 键重新进入 Web 界面刷写固件，或者打断 U-Boot 自动启动流程后在串口控制台手动执行相关命令。
 
-bootipq 常见失败原因：U-Boot 无法正常读取 0:HLOS 分区；0:HLOS 分区中存储的不是正确的固件内核数据。
+bootipq 常见失败原因：U-Boot 无法正常读取 rootfs 分区；rootfs 分区中存储的不是正确的固件数据。

@@ -1,6 +1,13 @@
 ## 📋 更新日志
 
-### 📅 [xx.xx.xx](https://github.com/chenxin527/uboot-ipq60xx-emmc-build//tags/)
+### 📅 [xx.xx.xx-xx.xx.xx](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/releases/)
+
+#### ✨ 功能更新
+
+- 添加对 Qihoo 360V6 的支持
+- 调整相关代码，适配 NAND 机型
+
+### 📅 [25.12.16-15.26.27](https://github.com/chenxin527/uboot-ipq60xx-emmc-build/releases/tag/25.12.16-15.26.27)
 
 #### ✨ 功能更新
 

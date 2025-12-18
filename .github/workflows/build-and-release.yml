@@ -9,16 +9,11 @@ on:
         type: choice
         options:
           - 所有设备
-          - 京东云太乙
-          - 京东云亚瑟
-          - 京东云雅典娜
-          - 连我 NN6000 V1
-          - 连我 NN6000 V2
-          - 红米 AX5 JDCloud
+          - Qihoo 360V6
         default: '所有设备'
 
 env:
-  DEVICE_MODEL: ${{ inputs.DEVICE_MODEL == '所有设备' && 'build_all' || inputs.DEVICE_MODEL == '京东云太乙' && 'build_re-cs-07' || inputs.DEVICE_MODEL == '京东云亚瑟' && 'build_re-ss-01' || inputs.DEVICE_MODEL == '京东云雅典娜' && 'build_re-cs-02' || inputs.DEVICE_MODEL == '连我 NN6000 V1' && 'build_nn6000-v1' || inputs.DEVICE_MODEL == '连我 NN6000 V2' && 'build_nn6000-v2' || inputs.DEVICE_MODEL == '红米 AX5 JDCloud' && 'build_ax5-jdcloud' }}
+  DEVICE_MODEL: ${{ inputs.DEVICE_MODEL == '所有设备' && 'build_all' || inputs.DEVICE_MODEL == 'Qihoo 360V6' && 'build_360v6' }}
 
 permissions: write-all
 
