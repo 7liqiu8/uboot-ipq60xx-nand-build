@@ -33,7 +33,7 @@ sudo apt install -y build-essential device-tree-compiler
 2. 克隆此仓库
 
 ```bash
-git clone https://github.com/chenxin527/uboot-ipq60xx-emmc-build.git
+git clone https://github.com/chenxin527/uboot-ipq60xx-nand-build.git
 ```
 
 3. 编译你需要的设备
@@ -60,7 +60,7 @@ Fork 本仓库后使用 GitHub Actions 云编译。
 
 日志文件：log-\${编译时间}.txt
 
-U-Boot 文件：uboot-ipq60xx-emmc-\${设备型号}-\${版本号}.bin
+U-Boot 文件：uboot-ipq60xx-nand-\${设备型号}-\${版本号}.bin
 
 U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图）：
 

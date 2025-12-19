@@ -13,9 +13,9 @@
 
 ## 📸 网页截图
 
-[点击此处](https://github.com/chenxin527/uboot-ipq60xx-nand-build/blob/5bda947116b50186274a11367528f257d4f52c56/screenshots.md) 查看所有网页截图。
+[点击此处](https://github.com/chenxin527/uboot-ipq60xx-nand-build/blob/d875ac5a73d6271862721000dc3658f837c4cc46/screenshots.md) 查看所有网页截图。
 
-![uboot-index-page](https://github.com/chenxin527/uboot-ipq60xx-nand-build/blob/42af5d1c143ea42dd02023db5bef45f56677674f/screenshots/uboot-index-page.png)
+![uboot-index-page](https://github.com/chenxin527/uboot-ipq60xx-nand-build/blob/4957dd6b99e1388f303ed02af72f20510658c603/screenshots/uboot-index-page.png)
 
 > [!NOTE]
 >
