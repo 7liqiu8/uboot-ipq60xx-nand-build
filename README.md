@@ -77,7 +77,7 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 | :---------- | :----------------------------- | :--------------------------------- |
 | 更新固件     | http://192.168.1.1             | 支持 UBI 固件                      |
 | 更新 ART    | http://192.168.1.1/art.html    | ART 包含路由器网卡 MAC 及无线校准数据（360V6 的 MAC 在 factory 分区）|
-| 更新 CDT    | http://192.168.1.1/cdt.html    | CDT 文件不得小于 10KB（10240 Bytes） |
+| 更新 CDT    | http://192.168.1.1/cdt.html    | CDT 文件不得小于 10 KB（10240 Bytes） |
 | 更新 IMG    | http://192.168.1.1/img.html    | 可更新 NAND 的 MIBIB 分区表或镜像 |
 | 更新 U-Boot | http://192.168.1.1/uboot.html  | U-Boot 大小不能超过 1536 KB（1572864 Bytes）|
 | 启动 uImage | http://192.168.1.1/uimage.html | Initramfs uImage，可直接上传至内存并启动 |

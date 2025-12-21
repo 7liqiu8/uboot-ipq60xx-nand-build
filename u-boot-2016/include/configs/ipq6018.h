@@ -356,6 +356,7 @@ extern loff_t board_env_size;
  * Other commands
  */
 
+#define CONFIG_CMD_BOOTCONFIG
 #define CONFIG_CMD_FLASHWRITE
 #define CONFIG_CMD_RUN
 #define CONFIG_ARMV7_PSCI
