@@ -118,16 +118,9 @@ int do_http_upgrade(const ulong size, const int upgrade_type) {
 					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
 					sprintf(buf,
 						"flash rootfs 0x%lx 0x%lx && "
-						"nand read 0x%lx 0x280000 0x150 && mw.b 0x%lx 0x00 0x1 && mw.b 0x%lx 0x00 0x1 && mw.b 0x%lx 0x00 0x1 && flash 0:BOOTCONFIG 0x%lx 0x150 && flash 0:BOOTCONFIG1 0x%lx 0x150",
+						"bootconfig set primary",
 						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS),
-						(unsigned long int)(size),
-						// 这部分改两个 BOOTCONFIG，启动系统 0，即 rootfs
-						(unsigned long int)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS+0x80),
-						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS+0x94),
-						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS+0xA8),
-						(unsigned long int)WEBFAILSAFE_UPLOAD_RAM_ADDRESS,
-						(unsigned long int)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
+						(unsigned long int)(size));
 				} else {
 					printf("\n\n* The upload file is NOT supported FIRMWARE!! *\n\n");
 					return (-1);
