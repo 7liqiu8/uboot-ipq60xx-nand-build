@@ -365,6 +365,7 @@ extern loff_t board_env_size;
 #define CONFIG_HTTPD
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_IMI
+#define CONFIG_CMD_UNTAR
 /*
 #define CONFIG_AUTOBOOT_KEYED
 #define CONFIG_AUTOBOOT_PROMPT "Hit \"%s\" key to stop booting in %d seconds\n"

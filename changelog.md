@@ -6,6 +6,7 @@
 
 - 添加对 Qihoo 360V6 的支持
 - 添加 bootconfig 命令，用于切换启动分区
+- 添加 untar 命令，用于解析 sysupgrade tar image
 - 调整相关代码，适配 NAND 机型
 
 #### 📢 其他更新
