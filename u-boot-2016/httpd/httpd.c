@@ -618,53 +618,8 @@ void httpd_appcall(void){
 						memset((void *)padding_start, 0, WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES);
 						// 检查上传的文件是否正确
 						int fw_type = check_fw_type((void *)WEBFAILSAFE_UPLOAD_RAM_ADDRESS);
-						switch (webfailsafe_upgrade_type) {
-							case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
-								if (fw_type != FW_TYPE_UBI) {
-									printf("\n\n* The upload file is NOT supported FIRMWARE!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
-								if (fw_type != FW_TYPE_ELF) {
-									printf("\n\n* The upload file is NOT supported UBOOT ELF!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_IMG:
-								if (fw_type != FW_TYPE_NAND &&
-									fw_type != FW_TYPE_MIBIB
-								) {
-									printf("\n\n* The upload file is NOT supported NAND IMG!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								} else if ((fw_type == FW_TYPE_MIBIB) && (hs->upload_total > WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NAND)) {
-									printf("\n\n## Error: wrong file size, should be less than or equal to: %d bytes!", WEBFAILSAFE_UPLOAD_MIBIB_SIZE_IN_BYTES_NAND);
-									webfailsafe_upload_failed = 1;
-									file_too_big = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_CDT:
-								if (fw_type != FW_TYPE_CDT) {
-									printf("\n\n* The upload file is NOT supported CDT!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_UIMAGE:
-								if (fw_type != FW_TYPE_FIT) {
-									printf("\n\n* The upload file is NOT supported FIT uImage!! *\n\n");
-									print_fw_type(fw_type);
-									webfailsafe_upload_failed = 1;
-								}
-								break;
-							case WEBFAILSAFE_UPGRADE_TYPE_ART:
-								break;
-							default:
-								printf("\n\n* NOT supported WEBFAILSAFE UPGRADE TYPE!! *");
-								webfailsafe_upload_failed = 1;
+						if (check_fw_compat(webfailsafe_upgrade_type, fw_type, (ulong)hs->upload_total)) {
+							webfailsafe_upload_failed = 1;
 						}
 
 						printf("\n\ndone!\n");

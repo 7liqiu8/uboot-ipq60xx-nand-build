@@ -71,6 +71,7 @@ enum {
 
 int auto_update_by_tftp(void);
 int check_fw_type(void *address);
+int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_size_in_bytes);
 void print_fw_type(int fw_type);
 void led_toggle(const char *gpio_name);
 void led_on(const char *gpio_name);
