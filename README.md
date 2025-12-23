@@ -10,11 +10,15 @@ u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 
 本项目已适配以下 IPQ60xx **NAND** 机型：
 
+- CMIOT AX18
 - Qihoo 360V6
+- ZN M2
 
 > [!NOTE]
 >
 > 360V6 靠近 USB 的第二个网口（紧挨着 WAN 的 LAN 口）无法进入 U-Boot Web 界面，请使用其他网口。
+>
+> CMIOT-AX18 / ZN-M2 的 WAN 口（紧挨着 RESET 键的网口）无法进入 U-Boot Web 界面，请使用其他网口。
 
 ## 编译方法
 
@@ -47,6 +51,8 @@ git clone https://github.com/chenxin527/uboot-ipq60xx-nand-build.git
   check_file_size <文件>  检查并调整文件大小至 1536 KB (1572864 Bytes)
   clean_cache             清理编译过程中产生的缓存
   build_360v6             编译 Qihoo 360V6
+  build_ax18              编译 CMIOT AX18
+  build_m2                编译 ZN M2
   build_all               编译所有支持的设备
 ```
 
@@ -100,11 +106,11 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 
 以下有 WPS 键的机型还支持通过 WPS 键进入 U-Boot Web 刷机界面：
 
+- CMIOT AX18
 - Qihoo 360V6
+- ZN M2
 
 ### 其他
-
-U-Boot 下不区分 LAN / WAN，任意网口均可进入 Web 刷机界面。
 
 按住 RESET / WPS 键后上电，等待 LED 闪烁 5 次后即可进入 U-Boot Web 刷机界面。
 

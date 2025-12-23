@@ -258,7 +258,9 @@ compile_all_targets() {
     log_message "编译所有支持的设备"
 
     # 依次编译所有设备
+    compile_target_after_cache_clean "cmiot_ax18"   "ipq6018_cmiot_ax18"
     compile_target_after_cache_clean "qihoo_360v6"  "ipq6018_qihoo_360v6"
+    compile_target_after_cache_clean "zn_m2"        "ipq6018_zn_m2"
 
     log_message "所有设备编译完成!"
 }
@@ -273,6 +275,8 @@ show_help() {
 	echo "  check_file_size <文件>  检查并调整文件大小至 1536 KB (1572864 Bytes)"
     echo "  clean_cache             清理编译过程中产生的缓存"
     echo "  build_360v6             编译 Qihoo 360V6"
+    echo "  build_ax18              编译 CMIOT AX18"
+    echo "  build_m2                编译 ZN M2"
     echo "  build_all               编译所有支持的设备"
 }
 
@@ -298,6 +302,14 @@ case "$1" in
         compile_single_target "qihoo_360v6" "ipq6018_qihoo_360v6"
         ;;
 
+    "build_ax18")
+        compile_single_target "cmiot_ax18" "ipq6018_cmiot_ax18"
+        ;;
+
+    "build_m2")
+        compile_single_target "zn_m2" "ipq6018_zn_m2"
+        ;;
+
     "build_all")
         compile_all_targets
         ;;
@@ -315,7 +327,7 @@ esac
 
 # 记录编译操作的结束
 case "$1" in
-    "build_360v6"|"build_all")
+    "build_360v6"|"build_ax18"|"build_m2"|"build_all")
         if [ -n "$LOG_FILE" ]; then
             echo "==========================================" >> "$LOG_FILE"
             echo "编译结束时间: $(TZ=UTC-8 date '+%Y-%m-%d %H:%M:%S')" >> "$LOG_FILE"

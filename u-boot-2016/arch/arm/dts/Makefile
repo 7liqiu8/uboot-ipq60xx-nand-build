@@ -62,12 +62,24 @@ dtb-$(CONFIG_ARCH_IPQ40xx) += ipq40xx-dk01-c1.dtb \
 
 # IPQ6018 设备树配置 ===
 $(info === IPQ6018 板级选择调试 ===)
+$(info CONFIG_TARGET_IPQ6018_CMIOT_AX18   = $(CONFIG_TARGET_IPQ6018_CMIOT_AX18))
 $(info CONFIG_TARGET_IPQ6018_QIHOO_360V6  = $(CONFIG_TARGET_IPQ6018_QIHOO_360V6))
+$(info CONFIG_TARGET_IPQ6018_ZN_M2        = $(CONFIG_TARGET_IPQ6018_ZN_M2))
 
 # 单个板级模式
+ifdef CONFIG_TARGET_IPQ6018_CMIOT_AX18
+$(info 选择: CMIOT AX18)
+dtb-$(CONFIG_ARCH_IPQ6018) += ipq6018-ax18.dtb
+endif
+
 ifdef CONFIG_TARGET_IPQ6018_QIHOO_360V6
 $(info 选择: Qihoo 360V6)
 dtb-$(CONFIG_ARCH_IPQ6018) += ipq6018-360v6.dtb
+endif
+
+ifdef CONFIG_TARGET_IPQ6018_ZN_M2
+$(info 选择: ZN M2)
+dtb-$(CONFIG_ARCH_IPQ6018) += ipq6018-m2.dtb
 endif
 # IPQ6018 设备树配置 ===
 

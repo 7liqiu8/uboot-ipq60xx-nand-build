@@ -103,7 +103,9 @@ int do_http_upgrade(const ulong size, const int upgrade_type) {
 	printChecksumMd5(WEBFAILSAFE_UPLOAD_RAM_ADDRESS, size);
 
 	// include/gl_api.h
-	// WEBFAILSAFE_UPLOAD_RAM_ADDRESS = 0x50000000 为了可以上传更大的固件，将上传地址从 0x44000000 改为 0x50000000 避免内存 crash 重启
+	// WEBFAILSAFE_UPLOAD_RAM_ADDRESS = 0x50000000
+	//                           为了可以上传更大的固件，将上传地址从 0x44000000 改为 0x50000000 避免内存 crash 重启
+	//                           针对原生 256MB 内存的机型（ZN-M2、CMIOT-AX18 等），上传地址仍使用 0x44000000
 	// FW_TYPE_NAND	             1 这个是 NAND 的镜像，以 SBL1 开头
 	// FW_TYPE_QSDK	             2 这个是官方原厂固件
 	// FW_TYPE_UBI	             3 这个是 UBI 固件

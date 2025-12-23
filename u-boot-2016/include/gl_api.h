@@ -1,8 +1,15 @@
 #define GL_RESET_BUTTON_IS_PRESS        0
 #define GL_WPS_BUTTON_IS_PRESS          0
 
-#if defined(CONFIG_TARGET_IPQ6018_QIHOO_360V6)
+#if defined(CONFIG_TARGET_IPQ6018_CMIOT_AX18) || \
+    defined(CONFIG_TARGET_IPQ6018_QIHOO_360V6) || \
+    defined(CONFIG_TARGET_IPQ6018_ZN_M2)
 #define HAS_WPS_KEY 1
+#endif
+
+#if defined(CONFIG_TARGET_IPQ6018_CMIOT_AX18) || \
+    defined(CONFIG_TARGET_IPQ6018_ZN_M2)
+#define ENABLE_256M_RAM_SUPPORT 1
 #endif
 
 #define LED_ON 1
@@ -24,7 +31,12 @@ enum {
 };
 
 #define CONFIG_LOADADDR                                 0x44000000
+
+#if defined(ENABLE_256M_RAM_SUPPORT)
+#define WEBFAILSAFE_UPLOAD_RAM_ADDRESS                  0x44000000
+#else
 #define WEBFAILSAFE_UPLOAD_RAM_ADDRESS                  0x50000000
+#endif
 
 #define WEBFAILSAFE_UPLOAD_PADDING_SIZE_IN_BYTES        (2*1024*1024)
 #define WEBFAILSAFE_UPLOAD_UBOOT_SIZE_IN_BYTES          (640*1024)

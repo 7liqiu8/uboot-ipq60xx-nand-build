@@ -752,10 +752,20 @@ choice
     help
         Select which IPQ6018 boards to include in U-Boot
 
+config TARGET_IPQ6018_CMIOT_AX18
+    bool "CMIOT AX18"
+    help
+        Support for CMIOT AX18 board
+
 config TARGET_IPQ6018_QIHOO_360V6
     bool "Qihoo 360V6"
     help
         Support for Qihoo 360V6 board
+
+config TARGET_IPQ6018_ZN_M2
+    bool "ZN M2"
+    help
+        Support for ZN M2 board
 
 endchoice
 
