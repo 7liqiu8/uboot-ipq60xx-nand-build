@@ -2,6 +2,12 @@
 
 ### 📅 [xx.xx.xx](https://github.com/chenxin527/uboot-ipq60xx-nand-build/releases/)
 
+#### 📢 其他更新
+
+- 不同类型的 IMG 更新打印不同的日志内容
+
+### 📅 [25.12.23](https://github.com/chenxin527/uboot-ipq60xx-nand-build/releases/tag/25.12.23-16.33.49)
+
 #### ✨ 功能更新
 
 - 添加对 Qihoo 360V6、CMIOT AX18、ZN M2 的支持

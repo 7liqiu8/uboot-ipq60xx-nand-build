@@ -161,15 +161,16 @@ int do_http_upgrade(const ulong size, const int upgrade_type) {
 			}
 			break;
 		case WEBFAILSAFE_UPGRADE_TYPE_IMG:
-			printf("\n\n****************************\n*      IMG  UPGRADING      *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
 			if (sfi->flash_type == SMEM_BOOT_NAND_FLASH) {
 				if (fw_type == FW_TYPE_NAND) {
+					printf("\n\n****************************\n*    NAND IMG UPGRADING    *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
 					sprintf(buf,
 						"nand erase 0x0 0x%lx && nand write 0x%lx 0x0 0x%lx",
 						(unsigned long int)(size),
 						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS),
 						(unsigned long int)(size));
 				} else if (fw_type == FW_TYPE_MIBIB) {
+					printf("\n\n****************************\n*      MIBIB UPGRADING     *\n* DO NOT POWER OFF DEVICE! *\n****************************\n\n");
 					sprintf(buf,
 						"nand erase 0x180000 0x%lx && nand write 0x%lx 0x180000 0x%lx",
 						(unsigned long int)(size),
