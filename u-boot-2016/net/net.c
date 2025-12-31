@@ -113,6 +113,9 @@
 #include "../httpd/uip_arp.h"
 #include "httpd.h"
 #include <gl_api.h>
+#if defined(CONFIG_MTK_DHCPD)
+#include <net/mtk_dhcpd.h>
+#endif
 DECLARE_GLOBAL_DATA_PTR;
 #include <../drivers/net/ipq6018/ipq6018_ppe.h>
 
@@ -453,6 +456,15 @@ restart:
 	debug_cond(DEBUG_INT_STATE, "--- net_loop Init\n");
 	net_init_loop();
 
+#if defined(CONFIG_MTK_DHCPD)
+	/*
+	 * net_init() clears UDP handlers on first call.
+	 * For web failsafe (HTTPD), enable the minimal DHCP server after init.
+	 */
+	if (protocol == HTTPD)
+		mtk_dhcpd_start();
+#endif
+
 	switch (net_check_prereq(protocol)) {
 	case 1:
 		/* network not configured */
@@ -617,8 +629,8 @@ restart:
 		if (protocol == HTTPD) {
 			if(!webfailsafe_ready_for_upgrade)
 				net_state = NETLOOP_CONTINUE;
-		else
-			net_state = NETLOOP_SUCCESS;
+			else
+				net_state = NETLOOP_SUCCESS;
 #if 0
 			//workaround for some case we can't receive uip_acked
 			//just force upgrade
@@ -1109,7 +1121,7 @@ static void receive_icmp(struct ip_udp_hdr *ip, int len,
 char gl_probe_upgrade=0;
 char upgrade_listen=0;
 
-static char gl_cmd_msg[5][256]={0}; 
+static char gl_cmd_msg[5][256]={0};
 
 void gl_upgrade_send_msg(char *msg)
 {
@@ -1121,7 +1133,7 @@ void gl_upgrade_send_msg(char *msg)
     if(eth->state == ETH_STATE_PASSIVE){
         //bd_t *bd = gd->bd;
         eth_init();
-                
+
     }
     memcpy(rep[1],msg,msg_len);
 
@@ -1129,7 +1141,7 @@ void gl_upgrade_send_msg(char *msg)
         memcpy((void*)net_tx_packet, rep, 42 + msg_len);
         eth_send(net_tx_packet, 42 + msg_len);
         udelay (10000);
-            
+
     }
 
 
@@ -1149,20 +1161,20 @@ char get_crc_param(char *buf,char *result,char num)
                 memcpy(result,start,len);
                 result[len]='\0';
                 return 0;
-                            
+
             }
             start=buf+i+1;
-                    
+
         }
         i++;
-            
+
     }
     if((buf[i] == '\0') && (++cunt == num)){
         len = buf+i-start;
         memcpy(result,start,len);
         result[len]='\0';
         return 0;
-            
+
     }
     return -1;
 
@@ -1175,7 +1187,7 @@ int gl_upgrade_cmd_handle(char *cmd)
             gl_upgrade_send_msg("glroute:hello");
             upgrade_listen = 1;
             printf("glinet scan\n");
-        }       
+        }
     }
     else if(strncmp(cmd,"cmd-",4)==0){
         int i=0;
@@ -1185,13 +1197,13 @@ int gl_upgrade_cmd_handle(char *cmd)
                 gl_upgrade_send_msg("glroute:ok");
                 printf("\nCMD:%s\n",gl_cmd_msg[i]);
                 break;
-                            
+
             }
-                    
+
         }
         if( i >= 5  )
             gl_upgrade_send_msg("glroute:err-no_space");
-            
+
     }
     else if (strncmp(cmd,"do-",3)==0){
             int i=0;
@@ -1200,22 +1212,22 @@ int gl_upgrade_cmd_handle(char *cmd)
                     printf("\nDo cmd\n");
                     setenv("gl_do_cmd",gl_cmd_msg[i]);
                     gl_cmd_ret=run_command("run gl_do_cmd", 0);
-                                
+
                 }
                 else{
                     break;
-                                
+
                 }
-                    
+
             }
             memset(gl_cmd_msg,0,sizeof(gl_cmd_msg));
             gl_upgrade_send_msg("glroute:ok");
-            
+
     }
     else if (strncmp(cmd,"dhcp",4)==0){
             run_command("dhcpd start", 0);
             gl_upgrade_send_msg("glroute:ok");
-            
+
     }
     else if (strncmp(cmd,"crc-",4)==0){
             char str_value[16]={0};
@@ -1233,15 +1245,15 @@ int gl_upgrade_cmd_handle(char *cmd)
                 gl_upgrade_send_msg("glroute:ok");
                 gl_probe_upgrade = 0;
                 upgrade_listen = 0;
-                        
+
             }
             else{
                 char err_msg[32]={0};
                 sprintf(err_msg,"glroute:err-crc_%lx",crc);
                 gl_upgrade_send_msg(err_msg);
-                    
+
             }
-                    
+
     }
 
     return 0;
@@ -1259,7 +1271,7 @@ void gl_upgrade_hook(volatile uchar * inpkt, int len)
     if(strstr(pk_buf+42,"glinet:")){
 
         gl_upgrade_cmd_handle(pk_buf+42+7);
-            
+
     }
 }
 
@@ -1277,6 +1289,26 @@ void gl_upgrade_listen(void)
 }
 
 #endif //CONFIG_WINDOWS_UPGRADE_SUPPORT
+
+#if defined(CONFIG_MTK_DHCPD)
+static int is_dhcp_packet(struct ethernet_hdr *et, int len)
+{
+    u16 eth_proto = ntohs(et->et_protlen);
+
+    if (eth_proto == PROT_IP && len >= ETHER_HDR_SIZE + IP_UDP_HDR_SIZE) {
+        struct ip_udp_hdr *ip = (struct ip_udp_hdr *)((uchar *)et + ETHER_HDR_SIZE);
+
+        if (ip->ip_p == IPPROTO_UDP) {
+            u16 dport = ntohs(ip->udp_dst);
+            u16 sport = ntohs(ip->udp_src);
+
+            // DHCP使用端口67(服务器)和68(客户端)
+            return (dport == 67 || sport == 68 || dport == 68 || sport == 67);
+        }
+    }
+    return 0;
+}
+#endif
 
 extern void dev_received(uchar *inpkt, int len);
 void net_process_received_packet(uchar *in_packet, int len)
@@ -1299,13 +1331,13 @@ void net_process_received_packet(uchar *in_packet, int len)
         gl_upgrade_hook(in_packet, len);
         gl_probe_upgrade = 1;
         return;
-            
+
     }
 
     if(NetUipLoop) {
         dev_received(in_packet, len);
         return;
-            
+
     }
 #endif
 
@@ -1317,7 +1349,11 @@ void net_process_received_packet(uchar *in_packet, int len)
 	if (len < ETHER_HDR_SIZE)
 		return;
 
-	if(webfailsafe_is_running){
+#if defined(CONFIG_MTK_DHCPD)
+	if (webfailsafe_is_running && !is_dhcp_packet(et, len)) {
+#else
+	if (webfailsafe_is_running) {
+#endif
 		NetReceiveHttpd(in_packet,len);
 		return;
 	}

@@ -2,6 +2,10 @@
 
 ### 📅 [xx.xx.xx](https://github.com/chenxin527/uboot-ipq60xx-nand-build/releases/)
 
+#### ✨ 功能更新
+
+- 支持通过 DHCP 为客户端分配 IP（dhcpd 跟随 httpd 自动启动）
+
 #### 📢 其他更新
 
 - 不同类型的 IMG 更新打印不同的日志内容
