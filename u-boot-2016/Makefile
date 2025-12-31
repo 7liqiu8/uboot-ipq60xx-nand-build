@@ -682,7 +682,6 @@ libs-y += test/
 libs-y += test/dm/
 libs-$(CONFIG_UT_ENV) += test/env/
 libs-$(CONFIG_HTTPD) += httpd/
-libs-$(CONFIG_WINDOWS_UPGRADE_SUPPORT) += uip/
 
 libs-y += $(if $(BOARDDIR),board/$(BOARDDIR)/)
 

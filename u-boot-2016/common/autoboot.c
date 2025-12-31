@@ -18,13 +18,6 @@
 #include <gl_api.h>
 #include <../drivers/net/ipq6018/ipq6018_ppe.h>
 
-#ifdef CONFIG_WINDOWS_UPGRADE_SUPPORT
-extern char gl_set_uip_info(void);
-extern void gl_upgrade_probe(void);
-extern void gl_upgrade_listen(void);
-extern char gl_probe_upgrade;
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int do_dumpqca_minimal_data(const char *offset);
@@ -157,12 +150,6 @@ static int passwd_abort(uint64_t etime)
 	 * when catch up.
 	 */
 	do {
-#ifdef CONFIG_WINDOWS_UPGRADE_SUPPORT
-		if(gl_probe_upgrade){
-			gl_upgrade_probe();
-			gl_upgrade_listen();
-		}
-#endif
 		if (tstc()) {
 			if (presskey_len < presskey_max) {
 				presskey[presskey_len++] = getc();
@@ -188,9 +175,6 @@ static int passwd_abort(uint64_t etime)
 				if (!delaykey[i].retry)
 					bootretry_dont_retry();
 				abort = 1;
-#ifdef CONFIG_WINDOWS_UPGRADE_SUPPORT
-				gl_probe_upgrade = 0;
-#endif
 			}
 		}
 	} while (!abort && get_ticks() <= etime);
@@ -211,9 +195,6 @@ static int abortboot_keyed(int bootdelay)
 #ifndef CONFIG_ZERO_BOOTDELAY_CHECK
 	if (bootdelay == 0)
 		return 0;
-#endif
-#ifdef CONFIG_WINDOWS_UPGRADE_SUPPORT
-	gl_probe_upgrade = gl_set_uip_info();
 #endif
 #  ifdef CONFIG_AUTOBOOT_PROMPT
 	/*
@@ -443,9 +424,6 @@ void autoboot_command(const char *s)
 		switch_to_bridge();
 	}
 	if (stored_bootdelay != -1 && s && !glflag) {
-#ifdef CONFIG_WINDOWS_UPGRADE_SUPPORT
-		gl_probe_upgrade = 0;
-#endif
 
 #if defined(CONFIG_AUTOBOOT_KEYED) && !defined(CONFIG_AUTOBOOT_KEYED_CTRLC)
 		int prev = disable_ctrlc(1);	/* disable Control C checking */

@@ -968,12 +968,7 @@ int eth_init(void)
 
 		if (eth_current->init(eth_current, gd->bd) >= 0) {
 			eth_current->state = ETH_STATE_ACTIVE;
-
-#ifdef CONFIG_WINDOWS_UPGRADE_SUPPORT
-			return 1;
-#else
 			return 0;
-#endif
 		}
 		debug("FAIL\n");
 
@@ -1006,17 +1001,6 @@ int eth_send(void *packet, int length)
 	return eth_current->send(eth_current, packet, length);
 }
 
-#ifdef CONFIG_WINDOWS_UPGRADE_SUPPORT_DEBUG
-int eth_rx(void)
-{
-	if (!eth_current){
-		printf("eth rx exit\n");
-		return -1;
-	}
-
-	return eth_current->recv(eth_current);
-}
-#else
 int eth_rx(void)
 {
 	if (!eth_current)
@@ -1024,7 +1008,6 @@ int eth_rx(void)
 
 	return eth_current->recv(eth_current);
 }
-#endif
 
 #endif /* ifndef CONFIG_DM_ETH */
 

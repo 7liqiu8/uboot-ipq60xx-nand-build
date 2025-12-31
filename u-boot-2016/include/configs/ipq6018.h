@@ -373,6 +373,4 @@ extern loff_t board_env_size;
 #define CONFIG_AUTOBOOT_STOP_STR "gl"
 */
 
-#define CONFIG_WINDOWS_UPGRADE_SUPPORT
-
 #endif /* _IPQ6018_H */
