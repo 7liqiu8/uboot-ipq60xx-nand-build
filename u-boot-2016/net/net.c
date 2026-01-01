@@ -675,7 +675,7 @@ restart:
 		case NETLOOP_SUCCESS:
 			net_cleanup_loop();
 			if (net_boot_file_size > 0) {
-				printf("Bytes transferred = %d (%x hex)\n",
+				printf("Bytes transferred = %d (0x%x)\n",
 				       net_boot_file_size, net_boot_file_size);
 				setenv_hex("filesize", net_boot_file_size);
 				setenv_hex("filesize_128k", (net_boot_file_size/131072+(net_boot_file_size%131072!=0))*131072);

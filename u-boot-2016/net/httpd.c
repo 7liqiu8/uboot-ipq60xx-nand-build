@@ -82,7 +82,7 @@ void printChecksumMd5(int address, unsigned int size)
 	int i = 0;
 	u8 output[16];
 	md5_wd(buf, size, output, CHUNKSZ_MD5);
-	printf("md5 for %08x ... %08x ==> ", address, address + size);
+	printf("md5 for 0x%08x ... 0x%08x ==> ", address, address + size);
 	for (i = 0; i < 16; i++)
 		printf("%02x", output[i] & 0xFF);
 	printf("\n");
