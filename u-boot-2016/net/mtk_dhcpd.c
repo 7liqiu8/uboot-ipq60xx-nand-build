@@ -181,17 +181,146 @@ static bool dhcpd_ip_allocated_to_mac(u32 ip_host, const u8 *mac)
     return false;
 }
 
-/* 为客户端分配新的IP地址 */
+/* 计算MAC地址的哈希值（用于确定IP分配） */
+static u32 dhcpd_mac_hash(const u8 *mac)
+{
+    /*
+     * 使用简单的Fowler-Noll-Vo (FNV-1a)哈希算法
+     * 确保不同MAC有较好的哈希分布
+     */
+    u32 hash = 2166136261u;  // FNV offset basis
+
+    for (int i = 0; i < 6; i++) {
+        hash ^= mac[i];
+        hash *= 16777619u;   // FNV prime
+    }
+
+    return hash;
+}
+
+/* 基于MAC哈希分配IP地址 */
 static struct in_addr dhcpd_alloc_ip(const u8 *mac)
 {
     struct dhcpd_lease *l;
-    u32 start, end;
-    int i;
+    u32 start, end, pool_size;
+    u32 hash_value, base_ip, try_ip;
+    int max_attempts;
 
-    // 检查客户端是否已有租约
+    // 1. 检查客户端是否已有租约
     l = dhcpd_find_lease(mac);
     if (l)
         return l->ip;
+
+    // 2. 获取IP池范围
+    start = ntohl(string_to_ip(DHCPD_POOL_START_STR).s_addr);
+    end = ntohl(string_to_ip(DHCPD_POOL_END_STR).s_addr);
+    pool_size = end - start + 1;
+
+    if (pool_size == 0) {
+        debug_cond(DEBUG_DEV_PKT, "dhcpd: IP pool size is zero\n");
+        struct in_addr ip;
+        ip.s_addr = htonl(start);
+        return ip;
+    }
+
+    // 3. 计算MAC哈希值
+    hash_value = dhcpd_mac_hash(mac);
+
+    // 4. 计算基础IP（哈希值映射到IP池）
+    base_ip = start + (hash_value % pool_size);
+    try_ip = base_ip;
+
+    max_attempts = pool_size;  // 最多尝试整个池子
+
+    debug_cond(DEBUG_DEV_PKT,
+              "dhcpd: MAC %pM hash=0x%08x, base_ip=%u\n",
+              mac, hash_value, base_ip);
+
+    // 5. 寻找可用IP（线性探测解决冲突）
+    for (int attempt = 0; attempt < max_attempts; attempt++) {
+        // 检查IP是否可用
+        if (!dhcpd_ip_is_allocated(try_ip)) {
+            // 找到可用IP，创建租约
+            for (int j = 0; j < DHCPD_MAX_CLIENTS; j++) {
+                if (!leases[j].used) {
+                    leases[j].used = true;
+                    memcpy(leases[j].mac, mac, 6);
+                    leases[j].ip.s_addr = htonl(try_ip);
+
+                    debug_cond(DEBUG_DEV_PKT,
+                              "dhcpd: allocated %pI4 to %pM (hash-based, attempt=%d)\n",
+                              &leases[j].ip, mac, attempt + 1);
+
+                    // 更新next_ip_host为下一个IP（保持向后兼容）
+                    next_ip_host = try_ip + 1;
+                    if (next_ip_host > end)
+                        next_ip_host = start;
+
+                    return leases[j].ip;
+                }
+            }
+
+            // 没有空闲租约槽位
+            debug_cond(DEBUG_DEV_PKT,
+                      "dhcpd: no free lease slots for %pM\n", mac);
+            break;
+        }
+
+        // 检查此IP是否属于此客户端（可能已有租约但未在第一步找到）
+        if (dhcpd_ip_allocated_to_mac(try_ip, mac)) {
+            // 此IP已分配给此客户端（可能是租约表中的不一致状态）
+            debug_cond(DEBUG_DEV_PKT,
+                      "dhcpd: IP %u already assigned to %pM (inconsistency)\n",
+                      try_ip, mac);
+
+            // 返回此IP
+            struct in_addr ip;
+            ip.s_addr = htonl(try_ip);
+            return ip;
+        }
+
+        // 线性探测：尝试下一个IP
+        try_ip++;
+        if (try_ip > end)
+            try_ip = start;
+
+        // 如果回到起点，说明已遍历整个池子
+        if (try_ip == base_ip)
+            break;
+    }
+
+    // 6. 所有IP都被占用，返回池中第一个IP（回退方案）
+    debug_cond(DEBUG_DEV_PKT,
+              "dhcpd: IP pool exhausted for %pM, using first IP\n", mac);
+
+    for (int j = 0; j < DHCPD_MAX_CLIENTS; j++) {
+        if (!leases[j].used) {
+            leases[j].used = true;
+            memcpy(leases[j].mac, mac, 6);
+            leases[j].ip.s_addr = htonl(start);
+
+            next_ip_host = start + 1;
+            if (next_ip_host > end)
+                next_ip_host = start;
+
+            return leases[j].ip;
+        }
+    }
+
+    // 7. 极端情况：所有租约槽位都已满
+    debug_cond(DEBUG_DEV_PKT,
+              "dhcpd: all lease slots and IPs exhausted for %pM\n", mac);
+
+    struct in_addr ip;
+    ip.s_addr = htonl(start);  // 返回池中第一个IP
+    return ip;
+}
+
+/* 为其他可能调用顺序分配的地方添加兼容性，保持原有的顺序分配逻辑，作为回退方案 */
+/* static struct in_addr dhcpd_alloc_ip_sequential(const u8 *mac)
+{
+    u32 start, end;
+    int i;
 
     start = ntohl(string_to_ip(DHCPD_POOL_START_STR).s_addr);
     end = ntohl(string_to_ip(DHCPD_POOL_END_STR).s_addr);
@@ -222,7 +351,7 @@ static struct in_addr dhcpd_alloc_ip(const u8 *mac)
                 if (next_ip_host > end)
                     next_ip_host = start;
 
-                debug_cond(DEBUG_DEV_PKT, "dhcpd: allocated %pI4 to %pM\n",
+                debug_cond(DEBUG_DEV_PKT, "dhcpd: sequential allocated %pI4 to %pM\n",
                           &leases[j].ip, mac);
                 return leases[j].ip;
             }
@@ -238,7 +367,7 @@ static struct in_addr dhcpd_alloc_ip(const u8 *mac)
     struct in_addr ip;
     ip.s_addr = htonl(start);
     return ip;
-}
+} */
 
 static u8 dhcpd_parse_msg_type(const struct dhcpd_pkt *bp, unsigned int len)
 {
@@ -641,21 +770,33 @@ static struct in_addr dhcpd_handle_discover(const u8 *client_mac)
     if (lease) {
         // 检查租约中的IP是否仍然可用（未被其他客户端占用）
         u32 ip_host = ntohl(lease->ip.s_addr);
+
         if (!dhcpd_ip_is_allocated(ip_host) ||
             dhcpd_ip_allocated_to_mac(ip_host, client_mac)) {
             // IP可用或仍属于此客户端
-            debug_cond(DEBUG_DEV_PKT, "dhcpd: existing lease for %pM\n", client_mac);
+            debug_cond(DEBUG_DEV_PKT,
+                      "dhcpd: existing lease %pI4 for %pM\n",
+                      &lease->ip, client_mac);
             return lease->ip;
         } else {
-            // IP已被其他客户端占用，需要分配新IP
+            // IP已被其他客户端占用，重新分配
             debug_cond(DEBUG_DEV_PKT,
-                      "dhcpd: existing lease IP %pI4 taken by another client, allocating new\n",
+                      "dhcpd: existing lease IP %pI4 taken by another client, reallocating\n",
                       &lease->ip);
+
+            // 删除旧租约（标记为未使用）
+            for (int i = 0; i < DHCPD_MAX_CLIENTS; i++) {
+                if (leases[i].used && dhcpd_mac_equal(leases[i].mac, client_mac)) {
+                    leases[i].used = false;
+                    memset(leases[i].mac, 0, 6);
+                    break;
+                }
+            }
         }
     }
 
-    // 新客户端或现有租约IP被占用，分配新IP
-    debug_cond(DEBUG_DEV_PKT, "dhcpd: new client %pM\n", client_mac);
+    // 新客户端或需要重新分配，使用基于MAC的分配
+    debug_cond(DEBUG_DEV_PKT, "dhcpd: new/relocating client %pM\n", client_mac);
     return dhcpd_alloc_ip(client_mac);
 }
 
