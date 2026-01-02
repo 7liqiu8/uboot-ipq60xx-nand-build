@@ -111,6 +111,7 @@ int do_http_upgrade(const ulong size, const int upgrade_type) {
 	// FW_TYPE_CDT               这个是 CDT 文件
 	// FW_TYPE_ELF               这个是 ELF 文件 (除了 U-Boot 外, QSEE, RPM, DEVCFG 也是 ELF 文件)
 	// FW_TYPE_FIT               这个是 FIT Image
+	// FW_TYPE_MIBIB             这个是 MIBIB 分区表
 
 	switch (upgrade_type) {
 		case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:

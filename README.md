@@ -20,6 +20,10 @@ u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 >
 > CMIOT-AX18 / ZN-M2 的 WAN 口（紧挨着 RESET 键的网口）无法进入 U-Boot Web 界面，请使用其他网口。
 
+> [!IMPORTANT]
+>
+> CMIOT-AX18 / ZN-M2 原生内存只有 256 MB，为了兼容未扩容内存的机器，U-Boot 下无法上传超过 95 MB 的固件，上传超过此大小的固件大概率会死机重启。若要刷写超过此大小的固件，可先刷较小体积的固件，进系统后再上传 Sysupgrade 格式的固件升级即可。
+
 ## 编译方法
 
 ### 本地编译
@@ -84,7 +88,7 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 | 更新固件     | http://192.168.1.1             | 支持 UBI 固件                      |
 | 更新 ART    | http://192.168.1.1/art.html    | ART 包含路由器网卡 MAC 及无线校准数据（360V6 的 MAC 在 factory 分区）|
 | 更新 CDT    | http://192.168.1.1/cdt.html    | CDT 文件不得小于 10 KB（10240 Bytes） |
-| 更新 IMG    | http://192.168.1.1/img.html    | 可更新 NAND 的 MIBIB 分区表或镜像 |
+| 更新 IMG    | http://192.168.1.1/img.html    | 支持刷写 NAND 的 MIBIB 分区表或完整镜像 |
 | 更新 U-Boot | http://192.168.1.1/uboot.html  | U-Boot 大小不能超过 1536 KB（1572864 Bytes）|
 | 启动 uImage | http://192.168.1.1/uimage.html | Initramfs uImage，可直接上传至内存并启动 |
 
@@ -111,6 +115,8 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 - ZN M2
 
 ### 其他
+
+**U-Boot 支持 DHCP，无需手动固定 IP（自 [26.01.02-15.33.45](https://github.com/chenxin527/uboot-ipq60xx-nand-build/releases/tag/26.01.02-15.33.45) 版本起）。** 访问 U-Boot Web 后台时不要将路由器与上级路由连接，以免上级路由 DHCP 干扰。
 
 按住 RESET / WPS 键后上电，等待 LED 闪烁 5 次后即可进入 U-Boot Web 刷机界面。
 
