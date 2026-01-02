@@ -3,6 +3,11 @@
 #include <gl_api.h>
 #include <asm/gpio.h>
 #include <fdtdec.h>
+#include <asm/arch-qca-common/smem.h>
+#include <part.h>
+#include <linux/mtd/mtd.h>
+#include <nand.h>
+#include <ubi_uboot.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -208,6 +213,26 @@ void print_fw_type(int fw_type) {
 	return;
 }
 
+int image_greater_than_partition(char *part_name, char *file_name, ulong file_size_in_bytes) {
+    uint32_t part_size_in_bytes = 0;
+	uint32_t size_block, start_block;
+	qca_smem_flash_info_t *sfi = &qca_smem_flash_info;
+
+    if (smem_getpart(part_name, &start_block, &size_block)) {
+		printf("\n\nPartition %s not found!", part_name);
+        return 1;
+	}
+	part_size_in_bytes = sfi->flash_block_size * size_block;
+
+    if (file_size_in_bytes > part_size_in_bytes) {
+        printf("\n\n* Error: image %s size (%lu bytes) > partition %s size (%lu bytes)! *",
+			   file_name, file_size_in_bytes, part_name, (ulong)part_size_in_bytes);
+        return 1;
+    }
+
+    return 0;
+}
+
 int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_size_in_bytes) {
 	switch (upgrade_type) {
 		case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
@@ -216,7 +241,7 @@ int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_
 				print_fw_type(fw_type);
 				return 1;
 			}
-			break;
+			return (image_greater_than_partition("rootfs", "total", (size_t)file_size_in_bytes));
 		case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
 			if (fw_type != FW_TYPE_ELF) {
 				printf("\n\n* The upload file is NOT supported UBOOT ELF!! *\n\n");
