@@ -55,10 +55,11 @@ struct dhcpd_pkt {
 #define HTYPE_ETHER		1
 #define HLEN_ETHER		6
 
-#define DHCPDISCOVER		1
+#define DHCPDISCOVER	1
 #define DHCPOFFER		2
 #define DHCPREQUEST		3
 #define DHCPACK			5
+#define DHCPNAK			6
 
 #define DHCP_OPTION_PAD		0
 #define DHCP_OPTION_SUBNET_MASK	1
@@ -68,6 +69,7 @@ struct dhcpd_pkt {
 #define DHCP_OPTION_LEASE_TIME	51
 #define DHCP_OPTION_MSG_TYPE	53
 #define DHCP_OPTION_SERVER_ID	54
+#define DHCP_OPTION_MESSAGE		56
 #define DHCP_OPTION_END		255
 
 #define DHCP_FLAG_BROADCAST	0x8000
@@ -315,7 +317,7 @@ static u8 *dhcpd_opt_add_inaddr(u8 *p, u8 code, struct in_addr addr)
 }
 
 static int dhcpd_send_reply(const struct dhcpd_pkt *req, unsigned int req_len,
-			    u8 dhcp_msg_type, struct in_addr yiaddr)
+			    u8 dhcp_msg_type, struct in_addr yiaddr, const char *nak_message)
 {
 	struct dhcpd_pkt *bp;
 	struct in_addr server_ip, netmask, gw, dns;
@@ -330,9 +332,13 @@ static int dhcpd_send_reply(const struct dhcpd_pkt *req, unsigned int req_len,
 	(void)req_len;
 
 	server_ip = dhcpd_get_server_ip();
-	netmask = dhcpd_get_netmask();
-	gw = dhcpd_get_gateway();
-	dns = dhcpd_get_dns();
+
+	/* 对于NAK，不需要网络配置信息 */
+	if (dhcp_msg_type != DHCPNAK) {
+		netmask = dhcpd_get_netmask();
+		gw = dhcpd_get_gateway();
+		dns = dhcpd_get_dns();
+	}
 
 	bcast.s_addr = 0xFFFFFFFF;
 
@@ -353,8 +359,16 @@ static int dhcpd_send_reply(const struct dhcpd_pkt *req, unsigned int req_len,
 	bp->secs = req->secs;
 	bp->flags = htons(DHCP_FLAG_BROADCAST);
 	bp->ciaddr = 0;
-	bp->yiaddr = yiaddr.s_addr;
-	bp->siaddr = server_ip.s_addr;
+
+	/* 对于NAK，yiaddr设为0 */
+	if (dhcp_msg_type == DHCPNAK) {
+		bp->yiaddr = 0;
+		bp->siaddr = 0;
+	} else {
+		bp->yiaddr = yiaddr.s_addr;
+		bp->siaddr = server_ip.s_addr;
+	}
+
 	bp->giaddr = 0;
 	memcpy(bp->chaddr, req->chaddr, sizeof(bp->chaddr));
 
@@ -363,13 +377,31 @@ static int dhcpd_send_reply(const struct dhcpd_pkt *req, unsigned int req_len,
 	opt += 4;
 
 	opt = dhcpd_opt_add_u8(opt, DHCP_OPTION_MSG_TYPE, dhcp_msg_type);
-	opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_SERVER_ID, server_ip);
-	opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_SUBNET_MASK, netmask);
-	opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_ROUTER, gw);
-	opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_DNS_SERVER, dns);
 
-	lease = htonl(3600);
-	opt = dhcpd_opt_add_u32(opt, DHCP_OPTION_LEASE_TIME, lease);
+	/* 对于NAK，只包含Server Identifier和Message选项 */
+	if (dhcp_msg_type == DHCPNAK) {
+		opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_SERVER_ID, server_ip);
+
+		/* 添加NAK消息（如果有） */
+		if (nak_message && *nak_message) {
+			int msg_len = strlen(nak_message);
+			if (msg_len > 0 && msg_len <= 255) {
+				*opt++ = DHCP_OPTION_MESSAGE;
+				*opt++ = msg_len;
+				memcpy(opt, nak_message, msg_len);
+				opt += msg_len;
+			}
+		}
+	} else {
+		/* 对于OFFER/ACK，包含完整的网络配置 */
+		opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_SERVER_ID, server_ip);
+		opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_SUBNET_MASK, netmask);
+		opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_ROUTER, gw);
+		opt = dhcpd_opt_add_inaddr(opt, DHCP_OPTION_DNS_SERVER, dns);
+
+		lease = htonl(3600);
+		opt = dhcpd_opt_add_u32(opt, DHCP_OPTION_LEASE_TIME, lease);
+	}
 
 	*opt++ = DHCP_OPTION_END;
 
@@ -422,22 +454,68 @@ static void dhcpd_handle_packet(uchar *pkt, unsigned int dport,
 	case DHCPDISCOVER:
 		yiaddr = dhcpd_alloc_ip(bp->chaddr);
 		debug_cond(DEBUG_DEV_PKT, "dhcpd: offer %pI4\n", &yiaddr);
-		dhcpd_send_reply(bp, len, DHCPOFFER, yiaddr);
+		dhcpd_send_reply(bp, len, DHCPOFFER, yiaddr, NULL);
 		break;
-	case DHCPREQUEST:
-		/* If client requests a specific IP, validate it */
-		if (dhcpd_parse_req_ip(bp, len, &req_ip)) {
-			u32 ip_host = ntohl(req_ip.s_addr);
-			if (dhcpd_ip_in_pool(ip_host)) {
-				yiaddr = req_ip;
-			} else {
-				yiaddr = dhcpd_alloc_ip(bp->chaddr);
-			}
-		} else {
-			yiaddr = dhcpd_alloc_ip(bp->chaddr);
-		}
-		dhcpd_send_reply(bp, len, DHCPACK, yiaddr);
-		break;
+	case DHCPREQUEST: {
+        bool send_nak = false;
+        const char *nak_msg = NULL;
+
+        /* If client requests a specific IP, validate it */
+        if (dhcpd_parse_req_ip(bp, len, &req_ip)) {
+            u32 ip_host = ntohl(req_ip.s_addr);
+
+            // 检查请求的IP是否在我们的子网和池中
+            struct in_addr netmask = dhcpd_get_netmask();
+            struct in_addr server_ip = dhcpd_get_server_ip();
+            u32 network = server_ip.s_addr & netmask.s_addr;
+            u32 req_network = req_ip.s_addr & netmask.s_addr;
+
+            if (req_network != network) {
+                // 请求的IP在不同的子网
+                send_nak = true;
+                nak_msg = "requested address not on local network";
+            } else if (!dhcpd_ip_in_pool(ip_host)) {
+                // 请求的IP不在我们的池中
+                send_nak = true;
+                nak_msg = "requested address not available";
+            } else {
+                // IP在池中，检查租约
+                struct dhcpd_lease *lease = dhcpd_find_lease(bp->chaddr);
+                if (lease && lease->ip.s_addr == req_ip.s_addr) {
+                    // 现有租约，续租
+                    yiaddr = req_ip;
+                } else if (lease) {
+                    // 客户端已有不同IP的租约
+                    send_nak = true;
+                    nak_msg = "client has existing lease";
+                } else {
+                    // 新客户端，分配请求的IP
+                    yiaddr = req_ip;
+                    // 添加到租约表
+                    for (int i = 0; i < DHCPD_MAX_CLIENTS; i++) {
+                        if (!leases[i].used) {
+                            leases[i].used = true;
+                            memcpy(leases[i].mac, bp->chaddr, 6);
+                            leases[i].ip = req_ip;
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            // 没有指定请求IP，分配新IP
+            yiaddr = dhcpd_alloc_ip(bp->chaddr);
+        }
+
+        if (send_nak) {
+            debug_cond(DEBUG_DEV_PKT, "dhcpd: NAK to %pM: %s\n", bp->chaddr, nak_msg ? nak_msg : "");
+            dhcpd_send_reply(bp, len, DHCPNAK, (struct in_addr){0}, nak_msg);
+        } else {
+            debug_cond(DEBUG_DEV_PKT, "dhcpd: ACK %pI4 to %pM\n", &yiaddr, bp->chaddr);
+            dhcpd_send_reply(bp, len, DHCPACK, yiaddr, NULL);
+        }
+        break;
+    } /* DHCPREQUEST */
 	default:
 		break;
 	}
