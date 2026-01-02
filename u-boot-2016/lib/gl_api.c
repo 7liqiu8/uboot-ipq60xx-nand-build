@@ -189,27 +189,28 @@ void print_fw_type(int fw_type) {
 	printf("* The upload file type: ");
 	switch (fw_type) {
 		case FW_TYPE_CDT:
-			printf("CDT *");
+			printf("CDT");
 			break;
 		case FW_TYPE_ELF:
-			printf("ELF *");
+			printf("ELF");
 			break;
 		case FW_TYPE_FIT:
-			printf("FIT IMAGE *");
+			printf("FIT IMAGE");
 			break;
 		case FW_TYPE_MIBIB:
-			printf("MIBIB *");
+			printf("MIBIB");
 			break;
 		case FW_TYPE_NAND:
-			printf("NAND IMAGE *");
+			printf("NAND IMAGE");
 			break;
 		case FW_TYPE_UBI:
-			printf("UBI FIRMWARE *");
+			printf("UBI FIRMWARE");
 			break;
 		case FW_TYPE_UNKNOWN:
 		default:
-			printf("UNKNOWN *");
+			printf("UNKNOWN");
 	}
+	printf(" *");
 	return;
 }
 
