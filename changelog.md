@@ -1,5 +1,11 @@
 ## 📋 更新日志
 
+### 📅 [xx.xx.xx](https://github.com/chenxin527/uboot-ipq60xx-nand-build/releases/)
+
+#### 🐛 BUG 修复
+
+- 修复 9008 下 U-Boot 无法启动的问题（9008 下 HTTP Server 暂不可用）
+
 ### 📅 [26.01.02](https://github.com/chenxin527/uboot-ipq60xx-nand-build/releases/tag/26.01.02-15.33.45)
 
 #### ✨ 功能更新
