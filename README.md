@@ -76,9 +76,62 @@ U-Boot 截图示例（[点击此处](./screenshots.md) 查看所有网页截图�
 
 ![uboot-index-page](./screenshots/uboot-index-page.png)
 
-> [!NOTE]
+## 刷写方法
+
+> [!IMPORTANT]
 >
-> NAND 机型的 U-Boot 均填充到了 1536 KB（0:APPSBL 分区大小）。初次刷入此 U-Boot 时建议在 SSH 下或者 TTL 下更新。其他作者的 U-Boot 可能限制了 192.168.1.1/uboot.html 界面下上传的 U-Boot 大小，无法直接更新此 U-Boot，若要在其他作者 U-Boot 的 192.168.1.1/uboot.html 界面下刷写此 U-Boot，请用十六进制编辑器删掉此 U-Boot 末尾多余的 0x0 后再尝试刷写。
+> 不要在其他作者 U-Boot 的 uboot.html 界面下直接更新此 U-Boot，请通过 SSH 或 TTL 刷写！！!
+
+重点概括：将 U-Boot 刷写到 0:APPSBL 及 0:APPSBL_1 分区（0:APPSBL_1 分区可选，可刷可不刷）。
+
+推荐参考教程：
+
+- [https://www.right.com.cn/forum/thread-8295985-1-1.html](https://www.right.com.cn/forum/thread-8295985-1-1.html)
+- [https://www.right.com.cn/forum/thread-7827262-1-1.html](https://www.right.com.cn/forum/thread-7827262-1-1.html)
+
+### SSH 刷写
+
+通过 SSH 连接至 OpenWrt，先输入 `cat /proc/mtd` 查看分区表，找到 0:APPSBL 及 0:APPSBL_1 分区对应的 mtd 设备名。
+
+![兆能M2分区表/proc/mtd](./screenshots/mibib_zn-m2_flash-128m_mod_proc-mtd.png)
+
+以上图中兆能 M2 的分区表为例，0:APPSBL 分区为 mtd13，0:APPSBL_1 分区为 mtd14（请根据自己的实际情况调整）。将 U-Boot 上传到 OpenWrt 的 /tmp 文件夹下，执行以下命令将 U-Boot 刷写到 0:APPSBL 及 0:APPSBL_1 分区：
+
+```bash
+mtd write /tmp/<文件名> /dev/mtd13
+mtd write /tmp/<文件名> /dev/mtd14
+```
+
+保险起见，刷写完成后，可输入以下命令检查 U-Boot 与相应分区的 md5 值是否匹配：
+
+```bash
+md5sum /tmp/<文件名>
+md5sum /dev/mtd13
+md5sum /dev/mtd14
+```
+
+将 <文件名> 替换为实际的文件名，确保刷写成功后再重启，刷写过程中遇到报错请自行搜索解决。
+
+确定文件刷写成功后再重启进入 U-Boot Web。
+
+### TTL 刷写
+
+需要用到 USB 转 TTL 模块及 Tftpd 软件（[下载链接](https://github.com/PJO2/tftpd64/releases)）。具体用法请自行搜索，或参考上面给出的其他教程。
+
+先执行以下命令将 U-Boot 通过 TFTP 上传至路由器。
+
+```bash
+tftpboot <文件名>
+```
+
+确保文件上传成功后再执行以下命令刷写 U-Boot：
+
+```bash
+flash 0:APPSBL
+flash 0:APPSBL_1
+```
+
+确定文件刷写成功后再重启进入 U-Boot Web。
 
 ## 功能介绍
 
