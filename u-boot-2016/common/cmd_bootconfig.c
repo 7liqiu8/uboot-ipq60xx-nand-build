@@ -19,7 +19,6 @@
 #include <nand.h>
 #include <ubi_uboot.h>
 #include <mapmem.h>
-#include <gl_api.h>
 
 #define BOOT_PART_PRIMARY      0x0
 #define BOOT_PART_SECONDARY    0x1
@@ -27,11 +26,7 @@
 #define BOOTCONFIG_PART_NUM	   2
 #define BOOTCONFIG_OFFSET_NUM  3
 
-#if defined(ENABLE_256M_RAM_SUPPORT)
 #define LOAD_RAM_ADDR 0x44000000
-#else
-#define LOAD_RAM_ADDR 0x50000000
-#endif
 
 static int do_bootconfig(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	void *start;
