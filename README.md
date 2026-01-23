@@ -11,6 +11,7 @@ u-boot-2016 源代码基于：https://github.com/gl-inet/uboot-ipq60xx
 本项目已适配以下 IPQ60xx **NAND** 机型：
 
 - CMIOT AX18
+- GLiNet AX1800
 - Qihoo 360V6
 - ZN M2
 
@@ -56,6 +57,7 @@ git clone https://github.com/chenxin527/uboot-ipq60xx-nand-build.git
   clean_cache             清理编译过程中产生的缓存
   build_360v6             编译 Qihoo 360V6
   build_ax18              编译 CMIOT AX18
+  build_ax1800            编译 GLiNet AX1800
   build_m2                编译 ZN M2
   build_all               编译所有支持的设备
 ```
@@ -164,6 +166,7 @@ flash 0:APPSBL_1
 以下有 WPS 键的机型还支持通过 WPS 键进入 U-Boot Web 刷机界面：
 
 - CMIOT AX18
+- GLiNet AX1800（原厂叫 Sync 键）
 - Qihoo 360V6
 - ZN M2
 

@@ -169,7 +169,15 @@ int check_fw_type(void *address) {
 		case HEADER_MAGIC_ELF:
 			return FW_TYPE_ELF;
 		case HEADER_MAGIC_FIT:
-			return FW_TYPE_FIT;
+			if (*((u32 *)(address + 0x5C)) == HEADER_MAGIC_QSDK) {
+				if (*((u32 *)(address + 0x65)) == HEADER_MAGIC_GL_VER_3)
+					return FW_TYPE_GL_VER_3;
+				else if (*((u32 *)(address + 0x65)) == HEADER_MAGIC_GL_VER_4)
+					return FW_TYPE_GL_VER_4;
+				else
+					return FW_TYPE_UNKNOWN;
+			} else
+				return FW_TYPE_FIT;
 		case HEADER_MAGIC_MBN1:
 			if (*header_magic2 == HEADER_MAGIC_MBN2)
 				return FW_TYPE_MIBIB;
@@ -196,6 +204,12 @@ void print_fw_type(int fw_type) {
 			break;
 		case FW_TYPE_FIT:
 			printf("FIT IMAGE");
+			break;
+		case FW_TYPE_GL_VER_3:
+			printf("GL·iNet OFFICIAL FIRMWARE (VER: 3.x)");
+			break;
+		case FW_TYPE_GL_VER_4:
+			printf("GL·iNet OFFICIAL FIRMWARE (VER: 4.x)");
 			break;
 		case FW_TYPE_MIBIB:
 			printf("MIBIB");
@@ -237,12 +251,17 @@ int image_greater_than_partition(char *part_name, char *file_name, ulong file_si
 int check_fw_compat(const int upgrade_type, const int fw_type, const ulong file_size_in_bytes) {
 	switch (upgrade_type) {
 		case WEBFAILSAFE_UPGRADE_TYPE_FIRMWARE:
-			if (fw_type != FW_TYPE_UBI) {
+			if (fw_type != FW_TYPE_UBI &&
+				fw_type != FW_TYPE_GL_VER_3 &&
+				fw_type != FW_TYPE_GL_VER_4
+			) {
 				printf("\n\n* The upload file is NOT supported FIRMWARE!! *\n\n");
 				print_fw_type(fw_type);
 				return 1;
 			}
-			return (image_greater_than_partition("rootfs", "total", (size_t)file_size_in_bytes));
+			if (fw_type == FW_TYPE_UBI)
+				return (image_greater_than_partition("rootfs", "total", (size_t)file_size_in_bytes));
+			break;
 		case WEBFAILSAFE_UPGRADE_TYPE_UBOOT:
 			if (fw_type != FW_TYPE_ELF) {
 				printf("\n\n* The upload file is NOT supported UBOOT ELF!! *\n\n");

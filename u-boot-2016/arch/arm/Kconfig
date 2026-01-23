@@ -757,6 +757,11 @@ config TARGET_IPQ6018_CMIOT_AX18
     help
         Support for CMIOT AX18 board
 
+config TARGET_IPQ6018_GLINET_AX1800
+    bool "GLiNet AX1800"
+    help
+        Support for GLiNet AX1800 board
+
 config TARGET_IPQ6018_QIHOO_360V6
     bool "Qihoo 360V6"
     help

@@ -108,6 +108,8 @@ int do_http_upgrade(const ulong size, const int upgrade_type) {
 	//                           针对原生 256MB 内存的机型（ZN-M2、CMIOT-AX18 等），上传地址仍使用 0x44000000
 	// FW_TYPE_NAND	             这个是 NAND 的镜像，以 SBL1 开头
 	// FW_TYPE_UBI	             这个是 UBI 固件
+	// FW_TYPE_GL_VER_3          这个是 GL·iNet 官方固件（版本：3.x）
+	// FW_TYPE_GL_VER_4          这个是 GL·iNet 官方固件（版本：4.x）
 	// FW_TYPE_CDT               这个是 CDT 文件
 	// FW_TYPE_ELF               这个是 ELF 文件 (除了 U-Boot 外, QSEE, RPM, DEVCFG 也是 ELF 文件)
 	// FW_TYPE_FIT               这个是 FIT Image
@@ -123,6 +125,18 @@ int do_http_upgrade(const ulong size, const int upgrade_type) {
 						"bootconfig set primary",
 						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS),
 						(unsigned long int)(size));
+				} else if (fw_type == FW_TYPE_GL_VER_3) {
+					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
+					sprintf(buf,
+						"imxtract 0x%lx ubi-11b222af1220a55fa0028279c31f3cf5f430e279 && flash rootfs $fileaddr $filesize && "
+						"bootconfig set primary",
+						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS));
+				} else if (fw_type == FW_TYPE_GL_VER_4) {
+					printf("\n\n******************************\n* FACTORY FIRMWARE UPGRADING *\n*  DO NOT POWER OFF DEVICE!  *\n******************************\n\n");
+					sprintf(buf,
+						"imxtract 0x%lx ubi && flash rootfs $fileaddr $filesize && "
+						"bootconfig set primary",
+						(unsigned long int)(WEBFAILSAFE_UPLOAD_RAM_ADDRESS));
 				} else {
 					return (-1);
 				}

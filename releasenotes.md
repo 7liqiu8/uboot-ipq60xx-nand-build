@@ -2,6 +2,11 @@
 
 [点击此处](https://github.com/chenxin527/uboot-ipq60xx-nand-build/blob/main/changelog.md) 查看完整更新日志。
 
+### ✨ 功能更新
+
+- 添加对 GL·iNet AX1800 的支持
+- 支持刷写 GL·iNet AX1800 的官方固件（3.x 及 4.x 版本均支持）
+
 ### 🐛 BUG 修复
 
 - 修复 9008 下 U-Boot 无法启动的问题（9008 下 HTTP Server 暂不可用）

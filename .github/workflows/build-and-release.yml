@@ -10,12 +10,13 @@ on:
         options:
           - 所有设备
           - CMIOT AX18
+          - GLiNet AX1800
           - Qihoo 360V6
           - ZN M2
         default: '所有设备'
 
 env:
-  DEVICE_MODEL: ${{ inputs.DEVICE_MODEL == '所有设备' && 'build_all' || inputs.DEVICE_MODEL == 'CMIOT AX18' && 'build_ax18' || inputs.DEVICE_MODEL == 'Qihoo 360V6' && 'build_360v6' || inputs.DEVICE_MODEL == 'ZN M2' && 'build_m2' }}
+  DEVICE_MODEL: ${{ inputs.DEVICE_MODEL == '所有设备' && 'build_all' || inputs.DEVICE_MODEL == 'CMIOT AX18' && 'build_ax18' || inputs.DEVICE_MODEL == 'GLiNet AX1800' && 'build_ax1800' || inputs.DEVICE_MODEL == 'Qihoo 360V6' && 'build_360v6' || inputs.DEVICE_MODEL == 'ZN M2' && 'build_m2' }}
 
 permissions: write-all
 
