@@ -191,9 +191,9 @@ extern loff_t board_env_size;
 #define CONFIG_EFI_PARTITION
 #define CONFIG_QCA_BAM			1
 /*
- * MMC configs
+ * MMC configs：彻底禁用MMC模块，避免链接MMC env函数
  */
-#define CONFIG_QCA_MMC
+#undef CONFIG_QCA_MMC  // 关键修改：关闭MMC模块
 
 #ifdef CONFIG_QCA_MMC
 #define CONFIG_MMC
@@ -246,7 +246,7 @@ extern loff_t board_env_size;
  * of U-Boot's MTD framework.
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	CONFIG_IPQ_MAX_NAND_DEVICE + \
-					CONFIG_IPQ_MAX_SPI_DEVICE
+					CONFIG_IPQ_SPI_DEVICE
 
 #define CONFIG_IPQ_MAX_NAND_DEVICE	1
 
