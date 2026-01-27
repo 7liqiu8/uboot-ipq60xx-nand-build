@@ -130,4 +130,44 @@
 			};
 		};
 	};
+
+	nand {
+		status = "okay";          // 启用NAND闪存
+		nand-ecc-strength = <8>;  // 适配S34MS04G100TFI000的8bit ECC
+		nand-ecc-step-size = <512>;
+		nand-bus-width = <8>;     // 8位总线，匹配闪存规格
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			// 分区1：uboot（1MB=0x100000），起始地址0x0
+			uboot@0 {
+				label = "uboot";
+				reg = <0x0 0x100000>;
+				read-only;  // 只读，防止误擦除
+			};
+
+			// 分区2：uboot_env（128KB=0x20000），起始地址0x100000
+			uboot_env@100000 {
+				label = "uboot_env";
+				reg = <0x100000 0x20000>;
+			};
+
+			// 分区3：factory（1MB=0x100000），起始地址0x120000
+			factory@120000 {
+				label = "factory";
+				reg = <0x120000 0x100000>;
+				read-only;  // 只读，保护MAC/校准数据
+			};
+
+			// 分区4：firmware（510976KB=0x7DC0000），起始地址0x220000
+			// 计算：512MB=0x20000000 - 0x100000(uboot) - 0x20000(uboot_env) - 0x100000(factory) = 0x7DC0000
+			firmware@220000 {
+				label = "firmware";
+				reg = <0x220000 0x7DC0000>;
+			};
+		};
+	};
 };
