@@ -162,11 +162,10 @@
 		        read-only;
 		    };
 		
-		    // firmware分区：剩余全部空间（512MB - 5MB - 128KB - 1MB = 518016KB = 0x1F9E0000）
-		    firmware@620000 {
-		        label = "firmware";
-		        reg = <0x620000 0x1F9E0000>;
-		    };
+			firmware@620000 {
+			    label = "firmware";
+			    reg = <0x620000 0x0>;  // 0x0表示“到闪存物理末尾”
+			};
 		};
 	};
 };
