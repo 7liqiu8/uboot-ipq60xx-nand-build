@@ -241,14 +241,16 @@ extern loff_t board_env_size;
 #define CONFIG_IPQ_SPI_NOR_INFO_IDX	1
 #endif
 
+/* 关键修改1：先定义CONFIG_IPQ_MAX_NAND_DEVICE，再引用 */
+#define CONFIG_IPQ_MAX_NAND_DEVICE	1
+
 /*
  * Expose SPI driver as a pseudo NAND driver to make use
  * of U-Boot's MTD framework.
  */
+/* 关键修改2：替换未定义的CONFIG_IPQ_SPI_DEVICE为CONFIG_IPQ_MAX_SPI_DEVICE */
 #define CONFIG_SYS_MAX_NAND_DEVICE	CONFIG_IPQ_MAX_NAND_DEVICE + \
-					CONFIG_IPQ_SPI_DEVICE
-
-#define CONFIG_IPQ_MAX_NAND_DEVICE	1
+					CONFIG_IPQ_MAX_SPI_DEVICE
 
 #define CONFIG_QPIC_NAND_NAND_INFO_IDX	0
 
