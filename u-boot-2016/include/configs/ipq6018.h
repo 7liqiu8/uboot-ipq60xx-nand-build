@@ -36,7 +36,8 @@
 /* Adjust uncompressed size of uImage to 0xF000000 Bytes (240 MBytes). */
 #define CONFIG_SYS_BOOTM_LEN		0xF000000 /* 0x50000000 - 0x41000000 = 0xF000000 */
 
-#define CONFIG_ENV_SIZE_MAX		(256 << 10) /* 256 KB */
+/* 只定义一次CONFIG_ENV_SIZE_MAX，匹配uboot_env分区的128KB */
+#define CONFIG_ENV_SIZE_MAX		(128 << 10) /* 128 KB */
 
 /*
  * Size of malloc() pool
@@ -104,7 +105,8 @@
 
 #define CONFIG_IPQ_FDT_HIGH		0x48500000
 #define CONFIG_IPQ_NO_MACS		6
-/* #define CONFIG_ENV_IS_IN_SPI_FLASH	1
+/* 修正#undef语法：仅保留宏名，去掉后面的1 */
+#undef CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SECT_SIZE		(64 * 1024)
 
 #define CONFIG_SMP_CMD_SUPPORT
@@ -134,7 +136,7 @@ extern loff_t board_env_size;
 #define CONFIG_ENV_OFFSET		board_env_offset
 #define CONFIG_ENV_SIZE			CONFIG_ENV_SIZE_MAX
 #define CONFIG_ENV_RANGE		board_env_range
-#define CONFIG_ENV_SIZE_MAX		(256 << 10) /* 256 KB */
+/* 删掉重复的CONFIG_ENV_SIZE_MAX定义 */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE_MAX + (1024 << 10))
 
 #define CONFIG_ENV_IS_IN_NAND		1
@@ -199,7 +201,8 @@ extern loff_t board_env_size;
 #define CONFIG_GENERIC_MMC
 #define CONFIG_SDHCI
 #define CONFIG_SDHCI_QCA
-#define CONFIG_ENV_IS_IN_MMC
+/* 注释掉MMC存储环境变量的宏，避免和NAND冲突 */
+/* #define CONFIG_ENV_IS_IN_MMC */
 #define CONFIG_SYS_MMC_ENV_DEV	0
 #define CONFIG_SDHCI_SUPPORT
 #define CONFIG_MMC_ADMA
