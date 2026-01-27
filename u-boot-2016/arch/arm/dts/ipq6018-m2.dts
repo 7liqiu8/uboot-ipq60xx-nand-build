@@ -138,36 +138,35 @@
 		nand-bus-width = <8>;     // 8位总线，匹配闪存规格
 
 		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			// 分区1：uboot（1MB=0x100000），起始地址0x0
-			uboot@0 {
-				label = "uboot";
-				reg = <0x0 0x100000>;
-				read-only;  // 只读，防止误擦除
-			};
-
-			// 分区2：uboot_env（128KB=0x20000），起始地址0x100000
-			uboot_env@100000 {
-				label = "uboot_env";
-				reg = <0x100000 0x20000>;
-			};
-
-			// 分区3：factory（1MB=0x100000），起始地址0x120000
-			factory@120000 {
-				label = "factory";
-				reg = <0x120000 0x100000>;
-				read-only;  // 只读，保护MAC/校准数据
-			};
-
-			// 分区4：firmware（510976KB=0x7DC0000），起始地址0x220000
-			// 计算：512MB=0x20000000 - 0x100000(uboot) - 0x20000(uboot_env) - 0x100000(factory) = 0x7DC0000
-			firmware@220000 {
-				label = "firmware";
-				reg = <0x220000 0x7DC0000>;
-			};
+		    compatible = "fixed-partitions";
+		    #address-cells = <1>;
+		    #size-cells = <1>;
+		
+		    // U-Boot分区：5MB（0x500000字节），起始0x0
+		    uboot@0 {
+		        label = "uboot";
+		        reg = <0x0 0x500000>;  // 0x500000 = 5*1024*1024 = 5MB
+		        read-only;
+		    };
+		
+		    // uboot_env分区：128KB（0x20000），起始0x500000（U-Boot分区结束处）
+		    uboot_env@500000 {
+		        label = "uboot_env";
+		        reg = <0x500000 0x20000>;
+		    };
+		
+		    // factory分区：1MB（0x100000），起始0x520000（uboot_env结束处）
+		    factory@520000 {
+		        label = "factory";
+		        reg = <0x520000 0x100000>;
+		        read-only;
+		    };
+		
+		    // firmware分区：剩余全部空间（512MB - 5MB - 128KB - 1MB = 518016KB = 0x1F9E0000）
+		    firmware@620000 {
+		        label = "firmware";
+		        reg = <0x620000 0x1F9E0000>;
+		    };
 		};
 	};
 };
