@@ -269,7 +269,19 @@ extern loff_t board_env_size;
 
 /* NSS firmware loaded using bootm */
 #define CONFIG_BOOTCOMMAND		"bootipq"
-#define CONFIG_BOOTARGS			"console=ttyMSM0,115200n8"
+#define CONFIG_BOOTARGS			"console=ttyMSM0,115200n8 " \
+                                    "root=/dev/mtdblock4 " \
+                                    "mtdparts=ipq_nand:1024k(uboot),128k(uboot_env),1024k(factory),510976k(firmware) " \
+                                    "rootfstype=squashfs,jffs2 noinitrd"
+#define MTDPARTS_DEFAULT \
+    "mtdparts=ipq_nand:1024k(uboot),128k(uboot_env),1024k(factory),510976k(firmware)\0"
+#define CONFIG_EXTRA_ENV_SETTINGS \
+    "baudrate=115200\0" \
+    "ipaddr=192.168.1.1\0" \
+    "serverip=192.168.1.2\0" \
+    "mtdparts=" MTDPARTS_DEFAULT "\0" \
+    "bootcmd=nand read 0x44000000 firmware && bootm 0x44000000\0" \
+    "bootargs=" CONFIG_BOOTARGS "\0"
 #define QCA_ROOT_FS_PART_NAME		"rootfs"
 
 #define CONFIG_BOOTDELAY		3
