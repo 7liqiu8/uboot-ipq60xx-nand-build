@@ -277,10 +277,10 @@ extern loff_t board_env_size;
 #define CONFIG_BOOTCOMMAND		"bootipq"
 #define CONFIG_BOOTARGS			"console=ttyMSM0,115200n8 " \
                                     "root=/dev/mtdblock4 " \
-                                    "mtdparts=ipq_nand:5120k(uboot),128k(uboot_env),1024k(factory),518016k(firmware) " \
+                                    "mtdparts=ipq_nand:5120k(uboot),128k(uboot_env),1024k(factory),1042304k(firmware) " \
                                     "rootfstype=squashfs,jffs2 noinitrd"
 #define MTDPARTS_DEFAULT \
-    "mtdparts=ipq_nand:5120k(uboot),128k(uboot_env),1024k(factory),518016k(firmware)\0"
+    "mtdparts=ipq_nand:5120k(uboot),128k(uboot_env),1024k(factory),1042304k(firmware)\0"
 #define CONFIG_EXTRA_ENV_SETTINGS \
     "baudrate=115200\0" \
     "ipaddr=192.168.1.1\0" \
