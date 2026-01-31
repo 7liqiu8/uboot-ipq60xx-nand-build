@@ -218,7 +218,8 @@ extern loff_t board_env_size;
  * CONFIG_IPQ_NAND: QPIC NAND in FIFO/block mode.
  * BAM is enabled by default.
  */
-#define CONFIG_QPIC_NAND
+#define CONFIG_QPIC_NAND  // 原文件已有这一行，在它下方加下面这行
+#define CONFIG_SYS_NAND_SIZE        0x40000000  // 新增：1GB闪存总容量（0x40000000=1024MB）
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NAND_YAFFS
 #define CONFIG_SYS_NAND_SELF_INIT
